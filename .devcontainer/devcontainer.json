@@ -1,0 +1,23 @@
+{
+    "name": "BTMW GUI",
+    "dockerComposeFile": "../docker-compose.yml",
+    "build": {
+        "context": "..",
+        "dockerfile": "../Dockerfile"
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "18"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "ms-vscode.vscode-typescript-next",
+                "ms-vscode.node-debug2"
+            ]
+        }
+    }
+}
