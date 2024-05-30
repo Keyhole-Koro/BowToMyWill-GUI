@@ -1,0 +1,16 @@
+.block {
+    background-color: blue;
+    position: absolute;
+    cursor: pointer;
+    display: inline-block;
+    padding: 10px;
+    color: white;
+    border-radius: 5px;
+    white-space: nowrap;
+    user-select: none;
+    transition: box-shadow 0.3s ease;
+}
+
+.glow {
+  box-shadow: 0 0 10px 5px rgb(21, 190, 187);
+}
