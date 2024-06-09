@@ -27,9 +27,8 @@ export class BlockComponent implements AfterViewInit {
 
   @ViewChildren('block') blockElements!: QueryList<ElementRef>;
 
-  constructor(private renderer: Renderer2) {}
-
   ngAfterViewInit() {
+    // 初期のブロックのスタイルを設定
     this.blockElements.forEach((blockElem, index) => {
       const block = blockElem.nativeElement as HTMLElement;
       block.style.top = this.blocks[index].top;
@@ -71,7 +70,7 @@ export class BlockComponent implements AfterViewInit {
 
           if (attraction) {
             this.blocks[this.activeBlockIndex] = { ...this.blocks[this.activeBlockIndex], ...attraction };
-            this.isMouseDown = false;
+            this.isMouseDown = false; // くっついたらドラッグ終了
             snapped = true;
             console.log(`Block ${this.activeBlockIndex} snapped to Block ${i}`);
             break;
@@ -85,21 +84,21 @@ export class BlockComponent implements AfterViewInit {
     const rect1 = block1Elem.getBoundingClientRect();
     const rect2 = block2Elem.getBoundingClientRect();
 
-    const xDistance = rect2.left + rect2.width / 2 - (rect1.left + rect1.width / 2);
-    const yDistance = rect2.top + rect2.height / 2 - (rect1.top + rect1.height / 2);
+    const xDistance = rect2.left - rect1.left;
+    const yDistance = rect2.top - rect1.top;
 
     if (Math.abs(xDistance) < threshold && Math.abs(yDistance) < threshold) {
       if (Math.abs(xDistance) > Math.abs(yDistance)) {
-        if (xDistance > 0) {
-          return { left: `${rect2.left - rect1.width}px` };
-        } else {
-          return { left: `${rect2.right}px` };
+        if (xDistance > 0 && xDistance < rect1.width) {
+          return { left: `${rect2.left - rect1.width}px` }; // 左側に引き寄せ
+        } else if (xDistance < 0 && -xDistance < rect2.width) {
+          return { left: `${rect2.right}px` }; // 右側に引き寄せ
         }
       } else {
-        if (yDistance > 0) {
-          return { top: `${rect2.top - rect1.height}px` };
-        } else {
-          return { top: `${rect2.bottom}px` };
+        if (yDistance > 0 && yDistance < rect1.height) {
+          return { top: `${rect2.top - rect1.height}px` }; // 上側に引き寄せ
+        } else if (yDistance < 0 && -yDistance < rect2.height) {
+          return { top: `${rect2.bottom}px` }; // 下側に引き寄せ
         }
       }
     }
