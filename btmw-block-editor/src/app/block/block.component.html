@@ -1,4 +1,3 @@
-<div *ngFor="let block of blocks" class="block" [ngStyle]="{'top': block.top, 'left': block.left}" #block>
-    {{ block.text }}
-  </div>
-  
+<div *ngFor="let block of blocks; let i = index" [id]="block.text" class="block" [style.top.px]="block.top" [style.left.px]="block.left" [style.transform]="'scale(' + scaleValues[i] + ') translate(-50%, -50%)'">
+  {{ block.text }}
+</div>

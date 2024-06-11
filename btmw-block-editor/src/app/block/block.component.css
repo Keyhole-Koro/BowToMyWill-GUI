@@ -1,16 +1,24 @@
-.block {
-    background-color: blue;
-    position: absolute;
-    cursor: pointer;
-    display: inline-block;
-    padding: 10px;
-    color: white;
-    border-radius: 5px;
-    white-space: nowrap;
-    user-select: none;
-    transition: box-shadow 0.3s ease;
+:host {
+  position: relative;
 }
 
-.glow {
-  box-shadow: 0 0 10px 5px rgb(21, 190, 187);
+.block {
+  background-color: blue;
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  padding: 10px;
+  color: white;
+  border-radius: 5px;
+  white-space: nowrap;
+  user-select: none;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.3s ease;
+}
+
+.block.snapped {
+  background-color: lightgreen;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); 
+  border-color: green;
 }
