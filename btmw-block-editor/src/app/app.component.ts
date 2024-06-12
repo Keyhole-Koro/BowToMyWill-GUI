@@ -15,9 +15,11 @@ export class AppComponent implements AfterViewInit {
   public ctx!: CanvasRenderingContext2D;
   public scale: number = 1;
   public baseLineSpacing: number = 50;
-  public minScale: number = 0.5;
-  public maxScale: number = 2;
+  public minScale: number = 0.7;
+  public maxScale: number = 1.5;
   public isDragging: boolean = false;
+  public deltaX = 0;
+  public deltaY = 0;
   public lastMouseX: number = 0;
   public lastMouseY: number = 0;
   public offsetX: number = 0;
@@ -27,29 +29,32 @@ export class AppComponent implements AfterViewInit {
   ngAfterViewInit() {
     const canvasElement = this.canvas.nativeElement;
     const context = canvasElement.getContext('2d');
-
+  
     if (context) {
       this.ctx = context;
       this.resizeCanvas();
       this.initBlocks();
+  
+      this.centerView();
+  
       this.draw();
     } else {
       console.error('Failed to get canvas context');
     }
   }
+  
 
   resizeCanvas() {
     const canvas = this.canvas.nativeElement;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    this.centerView();
-    this.updateScale();
+    this.draw();
   }
 
   initBlocks() {
-    this.blocks.push({ top: "100", left: "100", text: 'red' });
-    this.blocks.push({ top: "200", left: "200", text: 'blue' });
-    this.blocks.push({ top: "200", left: "300", text: 'green' });
+    this.blocks.push({ top: 100, left: 100, text: 'red', scale: 1 });
+    this.blocks.push({ top: 200, left: 200, text: 'blue', scale: 1 });
+    this.blocks.push({ top: 200, left: 300, text: 'green', scale: 1 });
   }
 
   draw() {
@@ -70,14 +75,14 @@ export class AppComponent implements AfterViewInit {
 
     this.ctx.strokeStyle = '#BBB';
     this.ctx.lineWidth = thickLineWidth;
-    for (let x = -this.offsetX % (lineSpacing * 4); x <= width; x += lineSpacing * 4) {
+    for (let x = (this.offsetX % (lineSpacing * 4)); x <= width; x += lineSpacing * 4) {
       this.ctx.beginPath();
       this.ctx.moveTo(x, 0);
       this.ctx.lineTo(x, height);
       this.ctx.stroke();
     }
 
-    for (let y = -this.offsetY % (lineSpacing * 4); y <= height; y += lineSpacing * 4) {
+    for (let y = (this.offsetY % (lineSpacing * 4)); y <= height; y += lineSpacing * 4) {
       this.ctx.beginPath();
       this.ctx.moveTo(0, y);
       this.ctx.lineTo(width, y);
@@ -86,8 +91,8 @@ export class AppComponent implements AfterViewInit {
 
     this.ctx.strokeStyle = '#000';
     this.ctx.lineWidth = thinLineWidth;
-    for (let x = -this.offsetX % lineSpacing; x <= width; x += lineSpacing) {
-      if (Math.abs((x + this.offsetX) % (lineSpacing * 4)) >= 0.1) {
+    for (let x = (this.offsetX % lineSpacing); x <= width; x += lineSpacing) {
+      if (Math.abs(x % (lineSpacing * 4)) >= 0.1) {
         this.ctx.beginPath();
         this.ctx.moveTo(x, 0);
         this.ctx.lineTo(x, height);
@@ -95,8 +100,8 @@ export class AppComponent implements AfterViewInit {
       }
     }
 
-    for (let y = -this.offsetY % lineSpacing; y <= height; y += lineSpacing) {
-      if (Math.abs((y + this.offsetY) % (lineSpacing * 4)) >= 0.1) {
+    for (let y = (this.offsetY % lineSpacing); y <= height; y += lineSpacing) {
+      if (Math.abs(y % (lineSpacing * 4)) >= 0.1) {
         this.ctx.beginPath();
         this.ctx.moveTo(0, y);
         this.ctx.lineTo(width, y);
@@ -109,7 +114,7 @@ export class AppComponent implements AfterViewInit {
       this.ctx.strokeStyle = '#AAA';
       this.ctx.lineWidth = 0.5;
 
-      for (let x = -this.offsetX % subLineSpacing; x <= width; x += subLineSpacing) {
+      for (let x = (this.offsetX % subLineSpacing); x <= width; x += subLineSpacing) {
         if (x % lineSpacing !== 0) {
           this.ctx.beginPath();
           this.ctx.moveTo(x, 0);
@@ -118,7 +123,7 @@ export class AppComponent implements AfterViewInit {
         }
       }
 
-      for (let y = -this.offsetY % subLineSpacing; y <= height; y += subLineSpacing) {
+      for (let y = (this.offsetY % subLineSpacing); y <= height; y += subLineSpacing) {
         if (y % lineSpacing !== 0) {
           this.ctx.beginPath();
           this.ctx.moveTo(0, y);
@@ -136,30 +141,23 @@ export class AppComponent implements AfterViewInit {
 
   @HostListener('wheel', ['$event'])
   onWheelScroll(event: WheelEvent) {
+    const zoomIntensity = 0.1;
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+    const canvas = this.canvas.nativeElement;
+
+    const dx = (mouseX - this.offsetX) / (canvas.width * this.scale);
+    const dy = (mouseY - this.offsetY) / (canvas.height * this.scale);
+
     if (event.deltaY > 0) {
-      this.zoomOut();
+      this.scale = Math.max(this.minScale, this.scale - zoomIntensity);
     } else {
-      this.zoomIn();
+      this.scale = Math.min(this.maxScale, this.scale + zoomIntensity);
     }
-  }
 
-  zoomIn() {
-    if (this.scale < this.maxScale) {
-      this.scale += 0.1;
-      this.updateScale();
-      this.centerView();
-    }
-  }
+    this.offsetX = mouseX - dx * (canvas.width * this.scale);
+    this.offsetY = mouseY - dy * (canvas.height * this.scale);
 
-  zoomOut() {
-    if (this.scale > this.minScale) {
-      this.scale -= 0.1;
-      this.updateScale();
-      this.centerView();
-    }
-  }
-
-  updateScale() {
     this.draw();
   }
 
@@ -167,8 +165,8 @@ export class AppComponent implements AfterViewInit {
     const canvas = this.canvas.nativeElement;
     this.offsetX = (canvas.width / 2) - (canvas.width * this.scale / 2);
     this.offsetY = (canvas.height / 2) - (canvas.height * this.scale / 2);
-    this.draw();
   }
+  
 
   @HostListener('mousedown', ['$event'])
   onMouseDown(event: MouseEvent) {
@@ -187,16 +185,16 @@ export class AppComponent implements AfterViewInit {
   @HostListener('mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
     if (this.isDragging) {
-      const deltaX = event.clientX - this.lastMouseX;
-      const deltaY = event.clientY - this.lastMouseY;
+      this.deltaX = event.clientX - this.lastMouseX;
+      this.deltaY = event.clientY - this.lastMouseY;
 
-      this.offsetX -= deltaX;
-      this.offsetY -= deltaY;
+      this.offsetX += this.deltaX;
+      this.offsetY += this.deltaY;
 
       this.lastMouseX = event.clientX;
       this.lastMouseY = event.clientY;
 
-      this.updateScale();
+      this.draw();
     }
   }
 
@@ -215,13 +213,15 @@ export class AppComponent implements AfterViewInit {
   }
 
   updateBlocks() {
-    this.blocks.forEach(block => {
-      const blockElement = document.getElementById(block.text);
-      if (blockElement) {
-        blockElement.style.top = `${Number(block.top) * this.scale + this.offsetY}px`;
-        blockElement.style.left = `${Number(block.left) * this.scale + this.offsetX}px`;
-        blockElement.style.transform = `scale(${this.scale})`;
-      }
+    this.blocks.forEach((block, index) => {
+      this.blockComponent.updateBlockStyle(
+        index
+        ,this.deltaY
+        ,this.deltaX
+        ,this.scale
+        )
     });
+    this.deltaY = 0;
+    this.deltaX = 0;
   }
 }

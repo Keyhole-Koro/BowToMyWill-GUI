@@ -13,6 +13,7 @@
   white-space: nowrap;
   user-select: none;
   align-items: center;
+  transform-origin: 0 0;
   justify-content: center;
   transition: box-shadow 0.3s ease;
 }

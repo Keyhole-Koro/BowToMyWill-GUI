@@ -2,9 +2,10 @@ import { Component, Input, HostListener, AfterViewInit, ViewChildren, QueryList,
 import { CommonModule } from '@angular/common';
 
 export interface Block {
-  top: string;
-  left: string;
+  top: number;
+  left: number;
   text: string;
+  scale: number;
 }
 
 @Component({
@@ -14,21 +15,16 @@ export interface Block {
   templateUrl: './block.component.html',
   styleUrls: ['./block.component.css']
 })
-
 export class BlockComponent implements OnChanges, AfterViewInit {
   @Input() blocks: Block[] = [];
-  scaleValues: number[] = [];
+  scale: number = 1;
   isMouseDown = false;
-  isScreenDragging = false;
-  screenDragStartX = 0;
-  screenDragStartY = 0;
-  screenOffsetX = 0;
-  screenOffsetY = 0;
   offsetX = 0;
   offsetY = 0;
+  startMouseX = 0;
+  startMouseY = 0;
   activeBlockIndex = -1;
-  snapTargetIndex = -1;
-  snapThreshold = 50;
+  originalPositions: { top: number; left: number }[] = [];
 
   @ViewChildren('blockElem') blockElements!: QueryList<ElementRef>;
 
@@ -46,121 +42,84 @@ export class BlockComponent implements OnChanges, AfterViewInit {
     if (this.blockElements) {
       this.blockElements.forEach((blockElem, index) => {
         const block = this.blocks[index];
-        blockElem.nativeElement.style.top = block.top;
-        blockElem.nativeElement.style.left = block.left;
+        blockElem.nativeElement.style.top = `${block.top}px`;
+        blockElem.nativeElement.style.left = `${block.left}px`;
         blockElem.nativeElement.style.position = 'absolute';
+        blockElem.nativeElement.style.transform = `scale(${this.scale})`;
       });
+    }
+  }
+
+  updateBlockStyle(index: number, topOffset: number, leftOffset: number, scale: number) {
+    
+    const targetBlock = this.blocks[index];
+    targetBlock.top += topOffset;
+    targetBlock.left += leftOffset;
+    targetBlock.scale = scale;
+    
+    const targetBlockElem = this.blockElements.get(index);
+    if (targetBlockElem) {
+      targetBlockElem.nativeElement.style.top = `${targetBlock.top}px`;
+      targetBlockElem.nativeElement.style.left = `${targetBlock.left}px`;
+      targetBlockElem.nativeElement.style.position = 'absolute';
+      targetBlockElem.nativeElement.style.transform = `scale(${scale})`;
     }
   }
 
   @HostListener('mousedown', ['$event'])
   onMouseDown(event: MouseEvent) {
-    this.isMouseDown = true;
     const targetElement = event.target as HTMLElement;
-    const className = targetElement.className;
-    if (className === 'block') {
+    if (targetElement.className === 'block') {
+      this.isMouseDown = true;
       this.activeBlockIndex = Array.from(targetElement.parentNode!.children).indexOf(targetElement);
 
-      const blockRect = targetElement.getBoundingClientRect();
-      this.offsetX = event.clientX - blockRect.left;
-      this.offsetY = event.clientY - blockRect.top;
-      this.snapTargetIndex = -1;
+      this.startMouseX = event.clientX;
+      this.startMouseY = event.clientY;
     }
   }
 
   @HostListener('document:mouseup')
   onMouseUp() {
     this.isMouseDown = false;
-    this.isScreenDragging = false;
-    this.snapTargetIndex = -1;
+    this.activeBlockIndex = -1;
   }
 
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
     if (this.isMouseDown && this.activeBlockIndex !== -1) {
-      const newLeft = event.clientX - this.offsetX + 'px';
-      const newTop = event.clientY - this.offsetY + 'px';
-      this.blocks[this.activeBlockIndex] = { ...this.blocks[this.activeBlockIndex], top: newTop, left: newLeft };
+      const deltaX = (event.clientX - this.startMouseX);
+      const deltaY = (event.clientY - this.startMouseY);
+      const targetBlock = this.blocks[this.activeBlockIndex];
 
-      let nearestAttraction = null;
-      let nearestDistance = this.snapThreshold;
+      this.startMouseX = event.clientX;
+      this.startMouseY = event.clientY;
 
-      for (let i = 0; i < this.blocks.length; i++) {
-        if (i !== this.activeBlockIndex) {
-          const activeBlockElem = this.blockElements.toArray()[this.activeBlockIndex].nativeElement as HTMLElement;
-          const targetBlockElem = this.blockElements.toArray()[i].nativeElement as HTMLElement;
-          const attraction = this.calculateAttraction(activeBlockElem, targetBlockElem, this.snapThreshold);
+      targetBlock.left += deltaX;
+      targetBlock.top += deltaY;
 
-          if (attraction) {
-            const distance = this.calculateDistance(activeBlockElem, targetBlockElem);
-            if (distance < nearestDistance) {
-              nearestDistance = distance;
-              nearestAttraction = attraction;
-              this.snapTargetIndex = i;
-              this.isMouseDown = false;
-            }
-          }
-        }
-      }
-
-      const activeBlockElem = this.blockElements.toArray()[this.activeBlockIndex].nativeElement as HTMLElement;
-      activeBlockElem.style.top = this.blocks[this.activeBlockIndex].top;
-      activeBlockElem.style.left = this.blocks[this.activeBlockIndex].left;
-    }
-
-    if (this.isScreenDragging) {
-      const deltaX = event.clientX - this.screenDragStartX;
-      const deltaY = event.clientY - this.screenDragStartY;
-      this.screenOffsetX += deltaX;
-      this.screenOffsetY += deltaY;
-      
-      this.blocks.forEach((block, index) => {
-        const newLeft = parseFloat(block.left) + deltaX + 'px';
-        const newTop = parseFloat(block.top) + deltaY + 'px';
-        console.log(String(index) + ",top" + newTop + ",left" + newLeft);
-        this.blocks[index] = { ...block, top: newTop, left: newLeft };
-        const blockElem = this.blockElements.toArray()[index].nativeElement as HTMLElement;
-        blockElem.style.top = newTop;
-        blockElem.style.left = newLeft;
-      });
-
-      this.screenDragStartX = event.clientX;
-      this.screenDragStartY = event.clientY;
+      this.setBlockStyles();
     }
   }
 
+  @HostListener('wheel', ['$event'])
+  onWheel(event: WheelEvent) {
+    const zoomIntensity = 0.1
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+    const oldScale = this.scale;
 
-  calculateAttraction(block1Elem: HTMLElement, block2Elem: HTMLElement, threshold: number): { top?: string; left?: string } | null {
-    const rect1 = block1Elem.getBoundingClientRect();
-    const rect2 = block2Elem.getBoundingClientRect();
-    const gap = 5;
-
-    const xDistance = rect2.left - rect1.left;
-    const yDistance = rect2.top - rect1.top;
-
-    if (Math.abs(xDistance) < threshold && Math.abs(yDistance) < threshold) {
-      if (Math.abs(xDistance) > Math.abs(yDistance)) {
-        if (xDistance > 0 && xDistance < rect1.width) {
-          return { left: `${rect2.left - rect1.width - gap}px` };
-        } else if (xDistance < 0 && -xDistance < rect2.width) {
-          return { left: `${rect2.right + gap}px` };
-        }
-      } else {
-        if (yDistance > 0 && yDistance < rect1.height) {
-          return { top: `${rect2.top - rect1.height - gap}px` };
-        } else if (yDistance < 0 && -yDistance < rect2.height) {
-          return { top: `${rect2.bottom + gap}px` };
-        }
-      }
+    if (event.deltaY > 0) {
+      this.scale = Math.max(0.7, this.scale - zoomIntensity);
+    } else {
+      this.scale = Math.min(1.5, this.scale + zoomIntensity);
     }
-    return null;
-  }
+    
+    const scaleFactor = this.scale / oldScale;
+    this.blocks.forEach(block => {
+      block.left = mouseX + (block.left - mouseX) * scaleFactor;
+      block.top = mouseY + (block.top - mouseY) * scaleFactor;
+    });
 
-  calculateDistance(block1Elem: HTMLElement, block2Elem: HTMLElement): number {
-    const rect1 = block1Elem.getBoundingClientRect();
-    const rect2 = block2Elem.getBoundingClientRect();
-    const xDistance = rect2.left - rect1.left;
-    const yDistance = rect2.top - rect1.top;
-    return Math.sqrt(xDistance * xDistance + yDistance * yDistance);
+    this.setBlockStyles();
   }
 }
