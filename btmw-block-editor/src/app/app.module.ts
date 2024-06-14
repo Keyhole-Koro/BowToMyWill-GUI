@@ -1,21 +1,19 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import { ResizableModule } from 'angular-resizable-element';
 import { BlockComponent } from './block/block.component';
+import { PresetMenuComponent } from './preset-menu/preset-menu.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    PresetMenuComponent,
     BlockComponent
   ],
   imports: [
-    BrowserModule,
-    DragDropModule,
-    ResizableModule
+    BrowserModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule { }

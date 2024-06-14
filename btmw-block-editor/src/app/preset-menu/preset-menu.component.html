@@ -1,0 +1,11 @@
+<div class="preset-menu">
+    <div *ngFor="let block of preset_blocks"
+        class="block"
+        [id]="block.text"
+        [style.top.px]="block.top"
+        [style.left.px]="block.left"
+        [style.transform]="'scale(' + block.scale + ')'"
+        #presetBlockElem>
+        {{ block.text }}
+    </div>
+</div>

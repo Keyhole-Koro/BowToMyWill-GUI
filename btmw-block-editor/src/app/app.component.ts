@@ -1,16 +1,18 @@
 import { Component, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
 import { BlockComponent, Block } from './block/block.component';
+import { PresetMenuComponent } from './preset-menu/preset-menu.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, BlockComponent],
+  imports: [CommonModule, PresetMenuComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements AfterViewInit {
-  @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('workspace', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild(BlockComponent) blockComponent!: BlockComponent;
   public ctx!: CanvasRenderingContext2D;
   public scale: number = 1;
@@ -33,7 +35,6 @@ export class AppComponent implements AfterViewInit {
     if (context) {
       this.ctx = context;
       this.resizeCanvas();
-      this.initBlocks();
   
       this.centerView();
   
@@ -49,12 +50,6 @@ export class AppComponent implements AfterViewInit {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     this.draw();
-  }
-
-  initBlocks() {
-    this.blocks.push({ top: 100, left: 100, text: 'red', scale: 1 });
-    this.blocks.push({ top: 200, left: 200, text: 'blue', scale: 1 });
-    this.blocks.push({ top: 200, left: 300, text: 'green', scale: 1 });
   }
 
   draw() {
@@ -73,7 +68,7 @@ export class AppComponent implements AfterViewInit {
     const thickLineWidth = this.scale < 1 ? 2 : 1;
     const thinLineWidth = 0.5;
 
-    this.ctx.strokeStyle = '#BBB';
+    this.ctx.strokeStyle = '#CCC';
     this.ctx.lineWidth = thickLineWidth;
     for (let x = (this.offsetX % (lineSpacing * 4)); x <= width; x += lineSpacing * 4) {
       this.ctx.beginPath();
@@ -89,7 +84,7 @@ export class AppComponent implements AfterViewInit {
       this.ctx.stroke();
     }
 
-    this.ctx.strokeStyle = '#000';
+    this.ctx.strokeStyle = '#AAA';
     this.ctx.lineWidth = thinLineWidth;
     for (let x = (this.offsetX % lineSpacing); x <= width; x += lineSpacing) {
       if (Math.abs(x % (lineSpacing * 4)) >= 0.1) {
@@ -111,7 +106,7 @@ export class AppComponent implements AfterViewInit {
 
     if (this.scale >= 1.5) {
       const subLineSpacing = lineSpacing / 4;
-      this.ctx.strokeStyle = '#AAA';
+      this.ctx.strokeStyle = '#BBB';
       this.ctx.lineWidth = 0.5;
 
       for (let x = (this.offsetX % subLineSpacing); x <= width; x += subLineSpacing) {
@@ -141,6 +136,10 @@ export class AppComponent implements AfterViewInit {
 
   @HostListener('wheel', ['$event'])
   onWheelScroll(event: WheelEvent) {
+    const targetElement = event.target as HTMLElement;
+    const className = targetElement.className;
+    if (className !== '') return
+
     const zoomIntensity = 0.1;
     const mouseX = event.clientX;
     const mouseY = event.clientY;
@@ -213,7 +212,6 @@ export class AppComponent implements AfterViewInit {
   }
 
   updateBlocks() {
-    console.log(this.deltaX);
     this.blocks.forEach((block, index) => {
       this.blockComponent.updateBlockStyle(
         index
