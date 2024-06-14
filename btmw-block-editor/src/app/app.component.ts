@@ -213,6 +213,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   updateBlocks() {
+    console.log(this.deltaX);
     this.blocks.forEach((block, index) => {
       this.blockComponent.updateBlockStyle(
         index
