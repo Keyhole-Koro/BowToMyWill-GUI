@@ -232,6 +232,5 @@ export class WorkspaceComponent implements AfterViewInit {
 
   addBlock(buf_block: Block) {
     this.blocks.push(buf_block);
-    console.log(this.blocks);
   }
 }

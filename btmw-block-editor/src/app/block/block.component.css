@@ -1,7 +1,3 @@
-:host {
-  position: absolute;
-}
-
 .block, .preset, .buf_block {
   background-color: blue;
   position: absolute;
@@ -15,6 +11,11 @@
   align-items: center;
   justify-content: center;
   transition: box-shadow 0.3s ease;
+}
+
+.buf_block {
+  box-shadow: 0 0 10px rgba(0, 0, 255, 0.5);
+  z-index: 10;
 }
 
 .block.snapped {
