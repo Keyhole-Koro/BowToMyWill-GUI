@@ -1,11 +1,11 @@
 .preset-menu {
-    width: 250px;
+    width: 200px;
     height: 100vh;
     background-color: #f4f4f4;
     overflow-y: auto;
     position: absolute;
-    resize: horizontal; /* 右端をつまんでサイズを調整可能にする */
-    border-right: 1px solid #ccc; /* 右端に見える境界線を追加 */
-    padding-right: 5px; /* 右端のつまみが重ならないように適切なパディングを追加 */
-    border-radius: 10px; /* 角丸にする */
+    resize: horizontal;
+    border-right: 1px solid #ccc;
+    padding-right: 5px;
+    border-radius: 10px;
 }

@@ -2,7 +2,7 @@
   position: relative;
 }
 
-.block {
+.block, .preset, .buf_block {
   background-color: blue;
   position: absolute;
   cursor: pointer;

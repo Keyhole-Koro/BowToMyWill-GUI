@@ -3,15 +3,17 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
 import { BlockComponent } from './block/block.component';
 import { PresetMenuComponent } from './preset-menu/preset-menu.component';
+import { WorkspaceComponent } from './workspace/workspace.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     PresetMenuComponent,
-    BlockComponent
+    BlockComponent,
+    WorkspaceComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

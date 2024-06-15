@@ -1,11 +1,28 @@
-<div class="preset-menu">
-    <div *ngFor="let block of preset_blocks"
-        class="block"
-        [id]="block.text"
-        [style.top.px]="block.top"
-        [style.left.px]="block.left"
-        [style.transform]="'scale(' + block.scale + ')'"
-        #presetBlockElem>
-        {{ block.text }}
+<div>
+    <div class="preset-menu">
+      <div *ngFor="let preset of preset_blocks"
+           class="preset"
+           [id]="preset.text"
+           [style.top.px]="preset.top"
+           [style.left.px]="preset.left"
+           [style.transform]="'scale(' + preset.scale + ')'"
+           (mousedown)="onDragStarted($event, preset)"
+           #presetElem>
+        {{ preset.text }}
+      </div>
     </div>
-</div>
+  
+    <div (mousemove)="onDrag($event)" (mouseup)="onDragEnd()">
+      <div *ngFor="let buf_block of buf_blocks"
+           class="buf_block"
+           [id]="buf_block.text"
+           [style.top.px]="buf_block.top"
+           [style.left.px]="buf_block.left"
+           [style.transform]="'scale(' + buf_block.scale + ')'"
+           (mousedown)="onDragStarted($event, buf_block)"
+           #bufElem>
+        {{ buf_block.text }}
+      </div>
+    </div>
+  </div>
+  
