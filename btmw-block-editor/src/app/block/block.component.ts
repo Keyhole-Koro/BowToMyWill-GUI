@@ -1,4 +1,5 @@
 import { Component, Input, HostListener, AfterViewInit, ViewChildren, QueryList, ElementRef, SimpleChanges, OnChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 export interface Block {
   top: number;
@@ -9,6 +10,8 @@ export interface Block {
 
 @Component({
   selector: 'app-block',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './block.component.html',
   styleUrls: ['./block.component.css']
 })

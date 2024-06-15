@@ -1,6 +1,5 @@
-import { Component, OnInit, ViewChildren, QueryList, ElementRef, Renderer2, HostListener } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList, ElementRef, HostListener, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
 
 import { Block } from '../block/block.component';
 
@@ -12,14 +11,14 @@ import { Block } from '../block/block.component';
   styleUrls: ['./preset-menu.component.css', '../block/block.component.css'],
 })
 export class PresetMenuComponent implements OnInit {
+  @Output() newBlockChanged = new EventEmitter<Block>();
+
   preset_blocks: Block[] = [];
   preset_num: number = 0;
 
   @ViewChildren('presetBlockElem') presetElements!: QueryList<ElementRef>;
 
   ngOnInit(): void {
-    console.log('PresetComponent initialized');
-    console.log(this.preset_blocks);
     this.initBlocks();
   }
 
@@ -80,6 +79,7 @@ export class PresetMenuComponent implements OnInit {
   onDragEnd() {
     if (this.draggingBlock) {
       this.buf_blocks = this.buf_blocks.filter(buf => buf !== this.draggingBlock);
+      this.newBlockChanged.emit({...this.draggingBlock});
       this.draggingBlock = null;
     }
   }

@@ -1,4 +1,4 @@
-import { Component, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, HostListener, ViewChild, ElementRef, AfterViewInit, Input, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { BlockComponent, Block } from '../block/block.component';
@@ -6,7 +6,7 @@ import { BlockComponent, Block } from '../block/block.component';
 @Component({
   selector: 'app-workspace',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, BlockComponent],
   templateUrl: './workspace.component.html',
   styleUrl: './workspace.component.css'
 })
@@ -27,6 +27,8 @@ export class WorkspaceComponent implements AfterViewInit {
   public offsetY: number = 0;
   public blocks: Block[] = [];
 
+  @Input() newBlock: Block | undefined;
+
   ngAfterViewInit() {
     const canvasElement = this.canvas.nativeElement;
     const context = canvasElement.getContext('2d');
@@ -43,6 +45,11 @@ export class WorkspaceComponent implements AfterViewInit {
     }
   }
   
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes["newBlock"] && this.newBlock) {
+      this.addBlock(this.newBlock);
+    }
+  }
 
   resizeCanvas() {
     const canvas = this.canvas.nativeElement;
@@ -221,5 +228,10 @@ export class WorkspaceComponent implements AfterViewInit {
     });
     this.deltaY = 0;
     this.deltaX = 0;
+  }
+
+  addBlock(buf_block: Block) {
+    this.blocks.push(buf_block);
+    console.log(this.blocks);
   }
 }

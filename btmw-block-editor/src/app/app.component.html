@@ -1,4 +1,4 @@
 <div>
-  <app-preset-menu></app-preset-menu>
-  <app-workspace></app-workspace>
+  <app-preset-menu (newBlockChanged)="onNewBlockChanged($event)"></app-preset-menu>
+  <app-workspace [newBlock]="newBlock"></app-workspace>
 </div>
