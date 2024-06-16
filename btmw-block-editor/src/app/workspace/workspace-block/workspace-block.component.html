@@ -1,0 +1,9 @@
+<div *ngFor="let block of blocks"
+     class="block"
+     [id]="block.text"
+     [style.top.px]="block.top"
+     [style.left.px]="block.left"
+     [style.transform]="'translate(-50%, -50%) scale(' + block.scale + ')'"
+     #blockElem>
+  {{ block.text }}
+</div>

@@ -1,175 +1,66 @@
-import { Component, HostListener, ViewChild, ElementRef, AfterViewInit, Input, SimpleChanges } from '@angular/core';
+import { Component, HostListener, ViewChild, Input, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { BlockComponent, Block } from '../block/block.component';
+import { WorkspaceGridComponent } from './workspace-grid/workspace-grid.component';
+import { WorkspaceBlockComponent, Block } from './workspace-block/workspace-block.component';
 
 @Component({
   selector: 'app-workspace',
   standalone: true,
-  imports: [CommonModule, BlockComponent],
+  imports: [CommonModule, WorkspaceGridComponent, WorkspaceBlockComponent],
   templateUrl: './workspace.component.html',
-  styleUrl: './workspace.component.css'
+  styleUrls: ['./workspace.component.css']
 })
-export class WorkspaceComponent implements AfterViewInit {
-  @ViewChild('workspace', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild(BlockComponent) blockComponent!: BlockComponent;
-  public ctx!: CanvasRenderingContext2D;
+export class WorkspaceComponent {
+  @ViewChild(WorkspaceGridComponent) gridComponent!: WorkspaceGridComponent;
+  @ViewChild(WorkspaceBlockComponent) workspaceBlockComponent!: WorkspaceBlockComponent;
+
   public scale: number = 1;
-  public baseLineSpacing: number = 50;
-  public minScale: number = 0.7;
-  public maxScale: number = 1.5;
   public isDragging: boolean = false;
   public deltaX = 0;
   public deltaY = 0;
   public lastMouseX: number = 0;
   public lastMouseY: number = 0;
-  public offsetX: number = 0;
-  public offsetY: number = 0;
+  public minScale: number = 0.7;
+  public maxScale: number = 1.5;
   public blocks: Block[] = [];
 
   @Input() newBlock: Block | undefined;
 
-  ngAfterViewInit() {
-    const canvasElement = this.canvas.nativeElement;
-    const context = canvasElement.getContext('2d');
-  
-    if (context) {
-      this.ctx = context;
-      this.resizeCanvas();
-  
-      this.centerView();
-  
-      this.draw();
-    } else {
-      console.error('Failed to get canvas context');
-    }
-  }
-  
   ngOnChanges(changes: SimpleChanges) {
     if (changes["newBlock"] && this.newBlock) {
       this.addBlock(this.newBlock);
     }
   }
 
-  resizeCanvas() {
-    const canvas = this.canvas.nativeElement;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    this.draw();
-  }
-
-  draw() {
-    const canvas = this.canvas.nativeElement;
-    const width = canvas.width;
-    const height = canvas.height;
-    const lineSpacing = this.baseLineSpacing * this.scale;
-
-    this.ctx.clearRect(0, 0, width, height);
-
-    this.drawGridLines(width, height, lineSpacing);
-    this.updateBlocks();
-  }
-
-  drawGridLines(width: number, height: number, lineSpacing: number) {
-    const thickLineWidth = this.scale < 1 ? 2 : 1;
-    const thinLineWidth = 0.5;
-
-    this.ctx.strokeStyle = '#CCC';
-    this.ctx.lineWidth = thickLineWidth;
-    for (let x = (this.offsetX % (lineSpacing * 4)); x <= width; x += lineSpacing * 4) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, height);
-      this.ctx.stroke();
-    }
-
-    for (let y = (this.offsetY % (lineSpacing * 4)); y <= height; y += lineSpacing * 4) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(0, y);
-      this.ctx.lineTo(width, y);
-      this.ctx.stroke();
-    }
-
-    this.ctx.strokeStyle = '#AAA';
-    this.ctx.lineWidth = thinLineWidth;
-    for (let x = (this.offsetX % lineSpacing); x <= width; x += lineSpacing) {
-      if (Math.abs(x % (lineSpacing * 4)) >= 0.1) {
-        this.ctx.beginPath();
-        this.ctx.moveTo(x, 0);
-        this.ctx.lineTo(x, height);
-        this.ctx.stroke();
-      }
-    }
-
-    for (let y = (this.offsetY % lineSpacing); y <= height; y += lineSpacing) {
-      if (Math.abs(y % (lineSpacing * 4)) >= 0.1) {
-        this.ctx.beginPath();
-        this.ctx.moveTo(0, y);
-        this.ctx.lineTo(width, y);
-        this.ctx.stroke();
-      }
-    }
-
-    if (this.scale >= 1.5) {
-      const subLineSpacing = lineSpacing / 4;
-      this.ctx.strokeStyle = '#BBB';
-      this.ctx.lineWidth = 0.5;
-
-      for (let x = (this.offsetX % subLineSpacing); x <= width; x += subLineSpacing) {
-        if (x % lineSpacing !== 0) {
-          this.ctx.beginPath();
-          this.ctx.moveTo(x, 0);
-          this.ctx.lineTo(x, height);
-          this.ctx.stroke();
-        }
-      }
-
-      for (let y = (this.offsetY % subLineSpacing); y <= height; y += subLineSpacing) {
-        if (y % lineSpacing !== 0) {
-          this.ctx.beginPath();
-          this.ctx.moveTo(0, y);
-          this.ctx.lineTo(width, y);
-          this.ctx.stroke();
-        }
-      }
-    }
-  }
-
   @HostListener('window:resize')
   onResize() {
-    this.resizeCanvas();
+    this.gridComponent.resizeCanvas();
   }
 
   @HostListener('wheel', ['$event'])
   onWheelScroll(event: WheelEvent) {
-    const targetElement = event.target as HTMLElement;
-    const className = targetElement.className;
-    if (className !== '') return
-
     const zoomIntensity = 0.1;
     const mouseX = event.clientX;
     const mouseY = event.clientY;
-    const canvas = this.canvas.nativeElement;
-
-    const dx = (mouseX - this.offsetX) / (canvas.width * this.scale);
-    const dy = (mouseY - this.offsetY) / (canvas.height * this.scale);
-
+    const oldScale = this.scale;
+    const canvas = this.gridComponent.canvas.nativeElement;
+  
+    const dx = (mouseX - this.gridComponent.offsetX) / (canvas.width * this.scale);
+    const dy = (mouseY - this.gridComponent.offsetY) / (canvas.height * this.scale);
+  
     if (event.deltaY > 0) {
       this.scale = Math.max(this.minScale, this.scale - zoomIntensity);
     } else {
       this.scale = Math.min(this.maxScale, this.scale + zoomIntensity);
     }
-
-    this.offsetX = mouseX - dx * (canvas.width * this.scale);
-    this.offsetY = mouseY - dy * (canvas.height * this.scale);
-
-    this.draw();
-  }
-
-  centerView() {
-    const canvas = this.canvas.nativeElement;
-    this.offsetX = (canvas.width / 2) - (canvas.width * this.scale / 2);
-    this.offsetY = (canvas.height / 2) - (canvas.height * this.scale / 2);
+  
+    this.gridComponent.offsetX = mouseX - dx * (canvas.width * this.scale);
+    this.gridComponent.offsetY = mouseY - dy * (canvas.height * this.scale);
+  
+    this.gridComponent.updateScale(this.scale);
+  
+    this.workspaceBlockComponent.updateBlockScroll(mouseX, mouseY, this.scale, oldScale);
   }
   
 
@@ -177,14 +68,14 @@ export class WorkspaceComponent implements AfterViewInit {
   onMouseDown(event: MouseEvent) {
     const targetElement = event.target as HTMLElement;
     const className = targetElement.className;
-    if (className == '') {
-      this.isDragging = true;
-      this.lastMouseX = event.clientX;
-      this.lastMouseY = event.clientY;
+    if (className !== 'workspace') return;
 
-      const canvasElement = this.canvas.nativeElement;
-      canvasElement.classList.add('dragging');
-    }
+    this.isDragging = true;
+    this.lastMouseX = event.clientX;
+    this.lastMouseY = event.clientY;
+
+    const canvasElement = this.gridComponent.canvas.nativeElement;
+    canvasElement.classList.add('dragging');
   }
 
   @HostListener('mousemove', ['$event'])
@@ -193,44 +84,34 @@ export class WorkspaceComponent implements AfterViewInit {
       this.deltaX = event.clientX - this.lastMouseX;
       this.deltaY = event.clientY - this.lastMouseY;
 
-      this.offsetX += this.deltaX;
-      this.offsetY += this.deltaY;
+      this.gridComponent.updateOffset(this.deltaX, this.deltaY);
+      this.workspaceBlockComponent.deltaX = this.deltaX;
+      this.workspaceBlockComponent.deltaY = this.deltaY;
+      this.workspaceBlockComponent.updateBlockMove();
 
       this.lastMouseX = event.clientX;
       this.lastMouseY = event.clientY;
 
-      this.draw();
+      this.deltaX = 0;
+      this.deltaY = 0;
     }
   }
 
   @HostListener('mouseup')
   onMouseUp() {
     this.isDragging = false;
-    const canvasElement = this.canvas.nativeElement;
+    const canvasElement = this.gridComponent.canvas.nativeElement;
     canvasElement.classList.remove('dragging');
   }
 
   @HostListener('mouseleave')
   onMouseLeave() {
     this.isDragging = false;
-    const canvasElement = this.canvas.nativeElement;
+    const canvasElement = this.gridComponent.canvas.nativeElement;
     canvasElement.classList.remove('dragging');
   }
 
-  updateBlocks() {
-    this.blocks.forEach((block, index) => {
-      this.blockComponent.updateBlockStyle(
-        index
-        ,this.deltaY
-        ,this.deltaX
-        ,this.scale
-        )
-    });
-    this.deltaY = 0;
-    this.deltaX = 0;
-  }
-
-  addBlock(buf_block: Block) {
-    this.blocks.push(buf_block);
+  addBlock(block: Block) {
+    this.blocks.push(block);
   }
 }

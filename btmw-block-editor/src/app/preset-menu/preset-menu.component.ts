@@ -2,11 +2,12 @@ import { Component, OnInit, ViewChildren, QueryList, ElementRef, HostListener, E
 import { CommonModule } from '@angular/common';
 
 import { Block } from '../block/block.component';
+import { PresetMenuContextComponent } from './preset-menu-context/preset-menu-context.component';
 
 @Component({
   selector: 'app-preset-menu',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PresetMenuContextComponent],
   templateUrl: './preset-menu.component.html',
   styleUrls: ['./preset-menu.component.css', '../block/block.component.css'],
 })

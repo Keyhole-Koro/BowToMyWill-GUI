@@ -1,4 +1,2 @@
-<div>
-    <canvas #workspace></canvas>
-    <app-block [blocks]="blocks"></app-block>
-</div>
+<app-workspace-grid></app-workspace-grid>
+<app-workspace-block [blocks]="blocks" [deltaX]="deltaX" [deltaY]="deltaY" [scale]="scale"></app-workspace-block>

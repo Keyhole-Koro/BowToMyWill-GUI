@@ -8,4 +8,5 @@
     border-right: 1px solid #ccc;
     padding-right: 5px;
     border-radius: 10px;
+    z-index: 5;
 }
