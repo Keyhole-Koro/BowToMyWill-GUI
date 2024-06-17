@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface Block {
@@ -37,5 +37,34 @@ export class WorkspaceBlockComponent {
       block.top = mouseY + (block.top - mouseY) * scaleFactor;
       block.scale = newScale;
     });
-  } 
+  }
+
+  draggingBlock: Block | null = null;
+  offsetX: number = 0;
+  offsetY: number = 0;
+
+  onDragStarted(event: MouseEvent, block: Block) {
+    this.draggingBlock = block;
+    this.offsetX = event.clientX - block.left;
+    this.offsetY = event.clientY - block.top;
+    event.preventDefault();
+  }
+
+  onDrag(event: MouseEvent) {
+    if (this.draggingBlock) {
+      this.draggingBlock.top = event.clientY - this.offsetY;
+      this.draggingBlock.left = event.clientX - this.offsetX;
+    }
+  }
+
+  onDragEnd() {
+    if (this.draggingBlock) {
+      this.draggingBlock = null;
+    }
+  }
+
+  @HostListener('document:mouseup', ['$event'])
+  onDocumentMouseUp(event: MouseEvent) {
+    this.onDragEnd();
+  }
 }

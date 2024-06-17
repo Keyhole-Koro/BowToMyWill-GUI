@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./preset-menu-context.component.css']
 })
 export class PresetMenuContextComponent {
-  categories = ['Category 1', 'Category 2', 'Category 3'];
+  categories = ['keyword', 'identifier', 'modifier'];
 
   @Output() categorySelected = new EventEmitter<string>();
 

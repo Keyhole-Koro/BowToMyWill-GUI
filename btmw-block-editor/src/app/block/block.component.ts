@@ -15,6 +15,6 @@ export interface Block {
   templateUrl: './block.component.html',
   styleUrls: ['./block.component.css']
 })
-export class BlockComponent {
+export abstract class BlockComponent {
 
 }
