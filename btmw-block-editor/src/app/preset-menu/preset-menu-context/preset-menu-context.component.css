@@ -1,0 +1,22 @@
+.category-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .category {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    background-color: #fff;
+    transition: background-color 0.3s;
+  }
+  
+  .category:hover {
+    background-color: #f0f0f0;
+  }
+  

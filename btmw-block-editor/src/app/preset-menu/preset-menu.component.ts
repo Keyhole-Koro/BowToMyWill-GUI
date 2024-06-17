@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChildren, QueryList, ElementRef, HostListener, EventEmitter, Input, Output } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList, ElementRef, HostListener, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { Block } from '../block/block.component';

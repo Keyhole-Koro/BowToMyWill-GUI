@@ -40,29 +40,29 @@ export class WorkspaceComponent {
 
   @HostListener('wheel', ['$event'])
   onWheelScroll(event: WheelEvent) {
+    event.preventDefault();  // これによりスクロール動作を無効化します。
     const zoomIntensity = 0.1;
     const mouseX = event.clientX;
     const mouseY = event.clientY;
     const oldScale = this.scale;
     const canvas = this.gridComponent.canvas.nativeElement;
-  
+
     const dx = (mouseX - this.gridComponent.offsetX) / (canvas.width * this.scale);
     const dy = (mouseY - this.gridComponent.offsetY) / (canvas.height * this.scale);
-  
+
     if (event.deltaY > 0) {
       this.scale = Math.max(this.minScale, this.scale - zoomIntensity);
     } else {
       this.scale = Math.min(this.maxScale, this.scale + zoomIntensity);
     }
-  
+
     this.gridComponent.offsetX = mouseX - dx * (canvas.width * this.scale);
     this.gridComponent.offsetY = mouseY - dy * (canvas.height * this.scale);
-  
+
     this.gridComponent.updateScale(this.scale);
-  
+
     this.workspaceBlockComponent.updateBlockScroll(mouseX, mouseY, this.scale, oldScale);
   }
-  
 
   @HostListener('mousedown', ['$event'])
   onMouseDown(event: MouseEvent) {
@@ -112,6 +112,7 @@ export class WorkspaceComponent {
   }
 
   addBlock(block: Block) {
+    block.scale = this.scale;
     this.blocks.push(block);
   }
 }
