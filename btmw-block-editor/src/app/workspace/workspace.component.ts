@@ -1,4 +1,4 @@
-import { Component, HostListener, ViewChild, Input, SimpleChanges } from '@angular/core';
+import { Component, HostListener, ViewChild, Input, SimpleChanges, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { WorkspaceGridComponent } from './workspace-grid/workspace-grid.component';
@@ -13,7 +13,7 @@ import { Block } from '../block/block.component';
   templateUrl: './workspace.component.html',
   styleUrls: ['./workspace.component.css']
 })
-export class WorkspaceComponent {
+export class WorkspaceComponent implements OnChanges {
   @ViewChild(WorkspaceGridComponent) gridComponent!: WorkspaceGridComponent;
   @ViewChild(WorkspaceBlockComponent) workspaceBlockComponent!: WorkspaceBlockComponent;
 
@@ -42,7 +42,7 @@ export class WorkspaceComponent {
 
   @HostListener('wheel', ['$event'])
   onWheelScroll(event: WheelEvent) {
-    event.preventDefault();  // これによりスクロール動作を無効化します。
+    event.preventDefault();
     const zoomIntensity = 0.1;
     const mouseX = event.clientX;
     const mouseY = event.clientY;

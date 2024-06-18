@@ -38,6 +38,8 @@ export class PresetMenuComponent implements OnInit {
   
   onBlockDropped() {
     console.log("dropped");
+    if (!this.bufferBlock) return;
+    this.newBlockChanged.emit(this.bufferBlock);
     this.bufferBlock = null;
   }
 
