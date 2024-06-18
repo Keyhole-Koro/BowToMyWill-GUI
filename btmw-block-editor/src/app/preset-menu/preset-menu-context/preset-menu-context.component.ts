@@ -1,5 +1,10 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { BlockKind } from '../../block/block.component';
+
+export interface menu_context {
+  kind: BlockKind;
+}
 
 @Component({
   selector: 'app-preset-menu-context',

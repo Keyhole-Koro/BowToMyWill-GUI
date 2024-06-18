@@ -1,4 +1,4 @@
-import { Component, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { WorkspaceComponent } from './workspace/workspace.component';

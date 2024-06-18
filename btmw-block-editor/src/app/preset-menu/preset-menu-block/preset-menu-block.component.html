@@ -1,0 +1,10 @@
+<div *ngFor="let preset of presetBlocks"
+    class="preset"
+    [id]="preset.info.id"
+    [style.top.px]="preset.top"
+    [style.left.px]="preset.left"
+    [style.transform]="'scale(' + preset.scale + ')'"
+    (mousedown)="mouseDown(preset)"
+    #presetElem>
+    {{ preset.info.id }}
+</div>

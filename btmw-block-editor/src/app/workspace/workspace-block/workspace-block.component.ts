@@ -1,12 +1,7 @@
 import { Component, Input, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export interface Block {
-  text: string;
-  top: number;
-  left: number;
-  scale: number;
-}
+import { Block } from '../../block/block.component';
 
 @Component({
   selector: 'app-workspace-block',

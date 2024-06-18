@@ -1,5 +1,7 @@
 <div class="category-menu">
-    <div class="category" *ngFor="let category of categories" (click)="selectCategory(category)">
+    <div *ngFor="let category of categories"
+        class="category" 
+        (click)="selectCategory(category)">
       {{ category }}
     </div>
   </div>

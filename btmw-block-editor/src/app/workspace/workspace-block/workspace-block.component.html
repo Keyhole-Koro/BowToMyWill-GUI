@@ -1,11 +1,11 @@
 <div *ngFor="let block of blocks"
       class="block"
-      [id]="block.text"
+      [id]="block.info.id"
       [style.top.px]="block.top"
       [style.left.px]="block.left"
       [style.transform]="'translate(-50%, -50%) scale(' + block.scale + ')'"
       (mousedown)="onDragStarted($event, block)"
       (mousemove)="onDrag($event)"
       #blockElem>
-  {{ block.text }}
+  {{ block.info.id }}
 </div>

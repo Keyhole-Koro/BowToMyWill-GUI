@@ -1,0 +1,9 @@
+<div class="buf_block"
+    *ngIf="bufferBlock"
+    [id]="bufferBlock.info.id"
+    [style.top.px]="bufferBlock.top"
+    [style.left.px]="bufferBlock.left"
+    [style.transform]="'scale(' + bufferBlock.scale + ')'"
+    #bufElem>
+    {{ bufferBlock.info.id }}
+</div>

@@ -2,7 +2,9 @@ import { Component, HostListener, ViewChild, Input, SimpleChanges } from '@angul
 import { CommonModule } from '@angular/common';
 
 import { WorkspaceGridComponent } from './workspace-grid/workspace-grid.component';
-import { WorkspaceBlockComponent, Block } from './workspace-block/workspace-block.component';
+import { WorkspaceBlockComponent } from './workspace-block/workspace-block.component';
+
+import { Block } from '../block/block.component';
 
 @Component({
   selector: 'app-workspace',
