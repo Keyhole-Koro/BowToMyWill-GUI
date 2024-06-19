@@ -4,6 +4,7 @@
     [style.top.px]="preset.top"
     [style.left.px]="preset.left"
     [style.transform]="'scale(' + preset.scale + ')'"
+    [style.background-color]="preset.info.color"
     (mousedown)="mouseDown(preset)"
     #presetElem>
     {{ preset.info.id }}

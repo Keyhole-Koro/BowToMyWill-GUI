@@ -1,12 +1,18 @@
 <div>
-  <div class="preset-menu">
-      <app-preset-menu-context></app-preset-menu-context>
-
-      <app-preset-menu-block
-        [presetBlockInfo]="preset_block_info"
-        (bufferBlockCreated)="onBufferBlockCreated($event)">
-      </app-preset-menu-block>
+  <div class="preset-menu"
+    [ngStyle]="{'margin-left.px': optionsBarWidth}"
+  >
+    <app-preset-menu-block
+      [presetBlockInfo]="target_preset_block_info"
+      (bufferBlockCreated)="onBufferBlockCreated($event)">
+    </app-preset-menu-block>
   </div>
+
+  <app-preset-menu-context
+    (widthChange)="adjustSideMenu($event)"
+    (toggle)="toggleOptionBar($event)"
+    (blockKindSelected)="arrangeTargetBlocks($event)">
+  </app-preset-menu-context>
 
   <app-preset-menu-buf-block
     [bufferBlock]="bufferBlock"

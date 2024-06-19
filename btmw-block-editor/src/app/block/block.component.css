@@ -1,5 +1,4 @@
 .block, .preset, .buf_block {
-  background-color: blue;
   position: absolute;
   cursor: pointer;
   display: inline-block;
@@ -16,6 +15,6 @@
 }
 
 .buf_block {
-  box-shadow: 0 0 10px rgba(0, 0, 255, 0.5);
+  box-shadow: 0 0 10px rgba(49, 49, 49, 0.5);
   z-index: 10;
 }

@@ -4,12 +4,19 @@ import { CommonModule } from '@angular/common';
 type HexColor = string;
 
 interface BlockKindObject {
-  [key: string]: number;
+  [key: string]: BlockKind;
 }
 
 export const BlockKinds: BlockKindObject = {};
 
-export type BlockKind = number;
+export enum BlockStyle {
+  NORMAL,
+};
+
+export interface BlockKind {
+  id: string;
+  style: BlockStyle;
+}
 
 export interface Block {
   info: BlockInfo;
@@ -36,7 +43,7 @@ export class BlockComponent {
 }
 export class BlockManager {
   private blocks: BlockInfo[];
-  private blockKindMap: { [key in BlockKind]?: BlockInfo[] } = {};
+  private blockKindMap: { [key: string]: BlockInfo[] } = {};
 
   constructor(blocks: BlockInfo[]) {
     this.blocks = blocks;
@@ -45,66 +52,69 @@ export class BlockManager {
   }
 
   private initializeBlockKinds(): void {
-    const uniqueKinds = [...new Set(this.blocks.map(block => block.kind))];
-    uniqueKinds.forEach(kind => this.registerBlockKind(kind));
+    const uniqueKinds = [...new Set(this.blocks.map(block => block.kind.id))];
+    uniqueKinds.forEach(kindId => {
+      const kind = this.blocks.find(block => block.kind.id === kindId)?.kind;
+      if (kind) {
+        this.registerBlockKind(kind);
+      }
+    });
   }
 
-  private registerBlockKind(kind: BlockKind): void {
-    if (!Object.values(BlockKinds).includes(kind)) {
-      BlockKinds[kind] = kind;
+  registerBlockKind(kind: BlockKind): void {
+    if (!BlockKinds[kind.id]) {
+      BlockKinds[kind.id] = kind;
     }
   }
 
-  getBlockKind(kind: string): BlockKind {
-    if (!(kind in BlockKinds)) {
-      BlockKinds[kind] = Object.keys(BlockKinds).length;
-    }
-    return BlockKinds[kind];
+  getBlockKind(id: string): BlockKind | undefined {
+    return BlockKinds[id];
   }
 
   private organizeBlocksByKind(): void {
     this.blockKindMap = {};
-    for (const block of this.blocks) {
-      const kind = block.kind;
-      if (!this.blockKindMap[kind]) {
-        this.blockKindMap[kind] = [];
+    this.blocks.forEach(block => {
+      const kindId = block.kind.id;
+      if (!this.blockKindMap[kindId]) {
+        this.blockKindMap[kindId] = [];
       }
-      this.blockKindMap[kind]?.push(block);
-    }
+      this.blockKindMap[kindId].push(block);
+    });
   }
 
   getBlockInfoByKind(kind: BlockKind): BlockInfo[] {
-    const found = (this.blockKindMap[kind] || []).map(block => block);
-    console.error("No blocks found by kind");
-    return found; }
+    return this.blockKindMap[kind.id] || [];
+  }
 
   getBlockInfoById(id: string): BlockInfo | undefined {
-    const found = this.blocks.find(block => block.id === id);
-    if (!found) console.error("No blocks found by id");
-    return found;
+    return this.blocks.find(block => block.id === id);
   }
 
   getBlockInfoByColor(color: HexColor): BlockInfo[] {
-    const found = this.blocks.filter(block => block.color === color);
-    console.error("No blocks found by color");
-    return found;
+    return this.blocks.filter(block => block.color === color);
   }
 
   displayBlockInfoByKind(kind: BlockKind): BlockInfo[] {
     const found = this.getBlockInfoByKind(kind);
-    console.error("No blocks found by id");
+    if (found.length === 0) {
+      console.error("No blocks found by kind");
+    }
     return found;
   }
 
   displayBlockInfoById(id: string): BlockInfo | undefined {
     const found = this.getBlockInfoById(id);
-    console.error("No blocks found by id");
+    if (!found) {
+      console.error("No blocks found by id");
+    }
     return found;
   }
 
   displayBlockInfoByColor(color: HexColor): BlockInfo[] {
     const found = this.getBlockInfoByColor(color);
-    console.error("No blocks found by color");
+    if (found.length === 0) {
+      console.error("No blocks found by color");
+    }
     return found;
   }
 }

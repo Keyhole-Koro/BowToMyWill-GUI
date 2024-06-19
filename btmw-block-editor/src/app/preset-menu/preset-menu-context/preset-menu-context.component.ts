@@ -1,24 +1,52 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BlockKind } from '../../block/block.component';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatListModule } from '@angular/material/list';
 
-export interface menu_context {
-  kind: BlockKind;
-}
+import { BlockKind, BlockStyle } from '../../block/block.component';
 
 @Component({
   selector: 'app-preset-menu-context',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatToolbarModule, MatListModule],
   templateUrl: './preset-menu-context.component.html',
   styleUrls: ['./preset-menu-context.component.css']
 })
 export class PresetMenuContextComponent {
-  categories = ['keyword', 'identifier', 'modifier'];
+  @Output() widthChange = new EventEmitter<number>();
+  @Output() blockKindSelected = new EventEmitter<BlockKind>();
 
-  @Output() categorySelected = new EventEmitter<string>();
+  constructor(private el: ElementRef) {}
 
-  selectCategory(category: string) {
-    this.categorySelected.emit(category);
+  @Output() toggle = new EventEmitter<boolean>();
+  isVisible = false;
+
+  kinds: BlockKind[] = [
+    {id: "identifier", style: BlockStyle.NORMAL},
+    {id: "other", style: BlockStyle.NORMAL}
+  ];
+
+  showBlockKind() {
+    this.isVisible = true;
+    this.updateWidth();
+    this.toggle.emit(true);
+  }
+
+  hideBlockKind() {
+    this.isVisible = false;
+    this.updateWidth();
+    this.toggle.emit(false);
+  }
+
+  private updateWidth() {
+    setTimeout(() => {
+      const width = this.el.nativeElement.querySelector('.block-kind-bar').offsetWidth;
+      this.widthChange.emit(width);
+    }, 1);
+  }
+
+  onBlockKindSelected(kind: BlockKind) {
+    console.log("clicked");
+    this.blockKindSelected.emit(kind);
   }
 }

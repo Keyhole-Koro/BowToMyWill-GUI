@@ -1,8 +1,13 @@
-<div class="category-menu">
-    <div *ngFor="let category of categories"
-        class="category" 
-        (click)="selectCategory(category)">
-      {{ category }}
+<div class="block-kind-bar"
+        (mouseenter)="showBlockKind()"
+        (mouseleave)="hideBlockKind()"
+        [ngClass]="{'expanded': isVisible}"
+        >
+    <div *ngFor="let kind of kinds"
+        class="block-kind"
+        [id] = "kind.id"
+        (click)="onBlockKindSelected(kind)"
+        >
+        {{ kind.id }}
     </div>
-  </div>
-  
+</div>

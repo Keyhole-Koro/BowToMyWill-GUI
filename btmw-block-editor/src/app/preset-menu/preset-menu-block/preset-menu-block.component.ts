@@ -29,6 +29,8 @@ export class PresetMenuBlockComponent implements OnChanges {
   }
 
   arrangePresetBlocks() {
+    this.presetBlocks = [];
+    this.preset_num = 0;
     this.presetBlockInfo?.forEach((block) => {
       this.presetBlocks?.push({
         info: block
